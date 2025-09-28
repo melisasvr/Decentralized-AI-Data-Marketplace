@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Decentralized AI Data Marketplace</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #10b981;
+            --accent: #f59e0b;
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --bg-hover: #334155;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #475569;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--bg) 0%, #1e293b 100%);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .header {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .logo::before {
+            content: "🌐";
+            font-size: 2rem;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        .main {
+            padding: 2rem 0;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 2rem;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+            background: var(--bg-card);
+            padding: 0.5rem;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .upload-section {
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 2px dashed var(--border);
+            padding: 3rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .upload-section:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            opacity: 0.7;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .datasets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .dataset-card {
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            padding: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dataset-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary), var(--accent));
+        }
+
+        .dataset-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            border-color: var(--primary);
+        }
+
+        .dataset-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+
+        .dataset-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: var(--text);
+        }
+
+        .quality-score {
+            background: linear-gradient(135deg, var(--success), var(--secondary));
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .dataset-meta {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .meta-icon {
+            font-size: 1rem;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin: 1rem 0;
+        }
+
+        .tag {
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        .dataset-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: auto; /* Pushes actions to the bottom */
+        }
+
+        .btn-small {
+            padding: 0.5rem 1rem;
+            font-size: 0.85rem;
+            border-radius: 8px;
+        }
+
+        .search-section {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .search-form {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 1rem;
+            align-items: end;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.show {
+            display: flex;
+            opacity: 1;
+            align-items: center;
+            justify-content: center;
+            animation: modalShow 0.3s ease;
+        }
+
+        @keyframes modalShow {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: var(--bg-hover);
+            color: var(--text);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 1rem 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            z-index: 1100;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .notification::before {
+            font-size: 1.2rem;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: linear-gradient(135deg, var(--success), var(--secondary));
+        }
+        
+        .notification.success::before {
+            content: '✅';
+        }
+
+        .notification.error {
+            background: linear-gradient(135deg, var(--error), #dc2626);
+        }
+        
+        .notification.error::before {
+            content: '❌';
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .floating-action {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .floating-action:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 35px rgba(99, 102, 241, 0.6);
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .search-form {
+                grid-template-columns: 1fr;
+            }
+
+            .dataset-meta {
+                grid-template-columns: 1fr;
+            }
+
+            .tabs {
+                flex-direction: column;
+            }
+
+            .datasets-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo">
+                    Decentralized AI Data Marketplace
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn btn-secondary" onclick="showConnectWallet()">
+                        🔗 Connect Wallet
+                    </button>
+                    <button class="btn btn-primary" onclick="switchTab('upload')">
+                        📤 Upload Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main">
+        <div class="container">
+            <div class="hero">
+                <h1>AI-Curated Data Marketplace</h1>
+                <p>Buy, sell, and discover high-quality datasets powered by AI analysis and blockchain technology</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalDatasets">0</div>
+                        <div class="stat-label">Total Datasets</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalValue">0.000</div>
+                        <div class="stat-label">ETH Total Value</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="avgQuality">0</div>
+                        <div class="stat-label">Avg Quality Score</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalAccess">0</div>
+                        <div class="stat-label">Total Purchases</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('browse')">🔍 Browse Datasets</button>
+                <button class="tab" onclick="switchTab('upload')">📤 Upload Dataset</button>
+                <button class="tab" onclick="switchTab('my-data')">👤 My Data</button>
+                <button class="tab" onclick="switchTab('analytics')">📊 Analytics</button>
+            </div>
+
+            <div id="browse-tab" class="tab-content active">
+                <div class="search-section">
+                    <h3 style="margin-bottom: 1rem;">🔎 Search & Filter Datasets</h3>
+                    <div class="search-form">
+                        <div class="form-group" style="margin: 0;">
+                            <input type="text" class="form-control" id="searchQuery" placeholder="Search datasets by title, description, or tags...">
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <select class="form-control" id="qualityFilter">
+                                <option value="0">All Quality Levels</option>
+                                <option value="90">90+ Score</option>
+                                <option value="80">80+ Score</option>
+                                <option value="70">70+ Score</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="searchDatasets()">
+                            🔍 Search
+                        </button>
+                    </div>
+                </div>
+
+                <div id="datasets-container" class="datasets-grid">
+                    </div>
+            </div>
+
+            <div id="upload-tab" class="tab-content">
+                <div class="upload-section">
+                    <div class="upload-icon">📁</div>
+                    <h3>Upload Your Dataset</h3>
+                    <p>Share your data with the world and earn from its value</p>
+                    
+                    <form id="uploadForm" style="max-width: 600px; margin: 2rem auto 0;">
+                        <div class="form-group">
+                            <label for="datasetFile">Dataset File</label>
+                            <input type="file" class="form-control" id="datasetFile" accept=".csv,.json,.xlsx" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="datasetTitle">Dataset Title</label>
+                            <input type="text" class="form-control" id="datasetTitle" placeholder="Enter a descriptive title" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="datasetDescription">Description</label>
+                            <textarea class="form-control" id="datasetDescription" rows="4" placeholder="Describe your dataset, its contents, and potential use cases" required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="ownerAddress">Your Wallet Address</label>
+                            <input type="text" class="form-control" id="ownerAddress" placeholder="0x..." required>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">
+                            🚀 Upload & Analyze Dataset
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="my-data-tab" class="tab-content">
+                <div class="search-section">
+                    <h3>👤 My Datasets</h3>
+                    <p>Manage your uploaded datasets and track their performance</p>
+                </div>
+                <div id="my-datasets-container" class="datasets-grid">
+                    </div>
+            </div>
+
+            <div id="analytics-tab" class="tab-content">
+                <div class="search-section">
+                    <h3>📊 Marketplace Analytics</h3>
+                    <p>Insights into marketplace trends and data quality</p>
+                </div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value">67%</div>
+                        <div class="stat-label">High Quality Data (80+)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">0.0045</div>
+                        <div class="stat-label">Avg Price (ETH)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">2.3x</div>
+                        <div class="stat-label">Monthly Growth</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">95%</div>
+                        <div class="stat-label">User Satisfaction</div>
+                    </div>
+                </div>
+
+                <div style="background: var(--bg-card); border-radius: 16px; padding: 2rem; margin-top: 2rem; border: 1px solid var(--border);">
+                    <h4 style="margin-bottom: 1rem;">📈 Popular Data Categories</h4>
+                    <div style="display: grid; gap: 1rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>📊 Financial Data</span>
+                            <div style="background: var(--bg); border-radius: 10px; width: 200px; height: 8px; overflow: hidden;">
+                                <div style="background: linear-gradient(90deg, var(--primary), var(--secondary)); height: 100%; width: 85%;"></div>
+                            </div>
+                            <span>85%</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>👥 User Behavior</span>
+                            <div style="background: var(--bg); border-radius: 10px; width: 200px; height: 8px; overflow: hidden;">
+                                <div style="background: linear-gradient(90deg, var(--secondary), var(--accent)); height: 100%; width: 72%;"></div>
+                            </div>
+                            <span>72%</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>🌍 Geographic</span>
+                            <div style="background: var(--bg); border-radius: 10px; width: 200px; height: 8px; overflow: hidden;">
+                                <div style="background: linear-gradient(90deg, var(--accent), var(--error)); height: 100%; width: 58%;"></div>
+                            </div>
+                            <span>58%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="datasetModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Dataset Details</h3>
+                <button class="close-btn" onclick="closeModal('datasetModal')">&times;</button>
+            </div>
+            <div id="modalContent">
+                </div>
+        </div>
+    </div>
+
+    <div id="purchaseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Purchase Dataset Access</h3>
+                <button class="close-btn" onclick="closeModal('purchaseModal')">&times;</button>
+            </div>
+            <div id="purchaseContent">
+                </div>
+        </div>
+    </div>
+
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Processing Upload</h3>
+            </div>
+            <div id="uploadProgress">
+                <div style="text-align: center; padding: 2rem;">
+                    <div class="loading" style="width: 40px; height: 40px; margin-bottom: 1.5rem;"></div>
+                    <h4 id="progressTitle">Uploading to IPFS...</h4>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                    <p id="progressText" style="color: var(--text-muted);">Processing your dataset...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="floating-action" onclick="showRandomTip()" title="Get AI Tips">
+        🤖
+    </button>
+
+    <script>
+        // Marketplace data simulation
+        let datasets = [];
+        let currentUser = "0x742d35cc6634C0532925a3b8D87b16A9D4c5c5c5";
+
+        // Sample datasets for demo
+        const sampleDatasets = [
+            {
+                id: "ds001",
+                title: "Premium E-commerce Transaction Dataset",
+                description: "Comprehensive e-commerce transaction data with user demographics, purchase patterns, and location insights. Perfect for ML models and business analytics.",
+                owner: "0xDataProvider123456789abcdef",
+                ipfsHash: "Qm025d43d52a224d30bb2dd27cc031105193a62817347f",
+                fileSize: 55342,
+                uploadDate: new Date(),
+                tags: ["user-data", "financial", "temporal", "geospatial", "medium-dataset"],
+                qualityScore: 89.44,
+                price: 0.006261,
+                dataType: "tabular",
+                accessCount: 12,
+                rating: 4.7,
+                schema: {
+                    rows: 1000,
+                    columns: 7,
+                    columnDetails: {
+                        "user_id": { type: "int64", unique: 1000 },
+                        "purchase_amount": { type: "float64", unique: 997 },
+                        "purchase_date": { type: "object", unique: 1000 }
+                    }
+                }
+            },
+            {
+                id: "ds002",
+                title: "Social Media Engagement Metrics",
+                description: "Detailed analytics on social media engagement patterns, including likes, shares, comments, and user interaction data across multiple platforms.",
+                owner: "0xSocialAnalyst456789def123",
+                ipfsHash: "Qm789xyz123abc456def789ghi012jkl345",
+                fileSize: 87650,
+                uploadDate: new Date(Date.now() - 86400000),
+                tags: ["social-media", "engagement", "analytics", "large-dataset"],
+                qualityScore: 92.1,
+                price: 0.008950,
+                dataType: "json",
+                accessCount: 24,
+                rating: 4.9,
+                schema: {
+                    rows: 5000,
+                    columns: 12,
+                    columnDetails: {
+                        "post_id": { type: "string", unique: 5000 },
+                        "engagement_rate": { type: "float64", unique: 4876 },
+                        "platform": { type: "string", unique: 5 }
+                    }
+                }
+            },
+            {
+                id: "ds003",
+                title: "Real Estate Market Trends",
+                description: "Historical real estate prices, market trends, and property characteristics data for major metropolitan areas.",
+                owner: "0xRealEstateData789abc123",
+                ipfsHash: "Qm456def789ghi123jkl456mno789pqr",
+                fileSize: 124800,
+                uploadDate: new Date(Date.now() - 172800000),
+                tags: ["real-estate", "financial", "geospatial", "temporal", "large-dataset"],
+                qualityScore: 85.7,
+                price: 0.011200,
+                dataType: "tabular",
+                accessCount: 8,
+                rating: 4.5,
+                schema: {
+                    rows: 15000,
+                    columns: 10,
+                    columnDetails: {
+                        "property_id": { type: "string", unique: 15000 },
+                        "price_usd": { type: "float64", unique: 14500 },
+                        "city": { type: "string", unique: 15 }
+                    }
+                }
+            }
+        ];
+
+        // --- CORE UI FUNCTIONS ---
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+            document.querySelector(`.tab[onclick="switchTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`${tabName}-tab`).classList.add('active');
+            
+            if (tabName === 'my-data') {
+                renderMyDatasets();
+            }
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('show');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 4000);
+        }
+
+        // --- UTILITY FUNCTIONS ---
+
+        function formatFileSize(bytes, decimals = 2) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        const aiTips = [
+            "High-quality data has fewer missing values. Consider imputation techniques for sparse datasets.",
+            "Consistent data formats (like ISO 8601 for dates) significantly increase a dataset's value.",
+            "Data with clear, descriptive column names is easier to use and more valuable.",
+            "Ensure your data doesn't contain sensitive personal information (PII) before uploading.",
+            "A well-documented schema can save buyers hours of exploratory analysis.",
+            "Temporal data (time-series) is highly valuable for predictive modeling and forecasting."
+        ];
+
+        function showRandomTip() {
+            const randomTip = aiTips[Math.floor(Math.random() * aiTips.length)];
+            showNotification(randomTip, 'success');
+        }
+
+        function showConnectWallet() {
+            showNotification(`Wallet connected: ${currentUser.substring(0, 10)}...`);
+            document.getElementById('ownerAddress').value = currentUser;
+        }
+
+
+        // --- MARKETPLACE LOGIC ---
+
+        function updateStats() {
+            const totalDatasets = datasets.length;
+            const totalValue = datasets.reduce((sum, d) => sum + d.price, 0);
+            const avgQuality = totalDatasets > 0 ? datasets.reduce((sum, d) => sum + d.qualityScore, 0) / totalDatasets : 0;
+            const totalAccess = datasets.reduce((sum, d) => sum + d.accessCount, 0);
+
+            document.getElementById('totalDatasets').textContent = totalDatasets;
+            document.getElementById('totalValue').textContent = totalValue.toFixed(4);
+            document.getElementById('avgQuality').textContent = avgQuality.toFixed(1);
+            document.getElementById('totalAccess').textContent = totalAccess;
+        }
+
+        function renderDatasets(datasetsToRender) {
+            const container = document.getElementById('datasets-container');
+            if (!datasetsToRender.length) {
+                container.innerHTML = `<div style="text-align: center; padding: 3rem; color: var(--text-muted); grid-column: 1 / -1;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🤷</div>
+                    <h3>No datasets found</h3>
+                    <p>Try adjusting your search or filter criteria.</p>
+                </div>`;
+                return;
+            }
+
+            container.innerHTML = datasetsToRender.map(d => `
+                <div class="dataset-card">
+                    <div class="dataset-header">
+                        <div>
+                            <h3 class="dataset-title">${d.title}</h3>
+                            <div class="meta-item" style="font-size: 0.8rem;">
+                                <span class="meta-icon">👤</span> ${d.owner.substring(0, 6)}...${d.owner.substring(d.owner.length - 4)}
+                            </div>
+                        </div>
+                        <div class="quality-score">⭐ ${d.qualityScore.toFixed(1)}</div>
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">${d.description.substring(0, 100)}...</p>
+                    <div class="tags">
+                        ${d.tags.slice(0, 4).map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                    <div class="dataset-meta">
+                        <div class="meta-item"><span class="meta-icon">💰</span> <strong>Price:</strong> ${d.price.toFixed(6)} ETH</div>
+                        <div class="meta-item"><span class="meta-icon">📦</span> <strong>Size:</strong> ${formatFileSize(d.fileSize)}</div>
+                        <div class="meta-item"><span class="meta-icon">📊</span> <strong>Type:</strong> ${d.dataType}</div>
+                        <div class="meta-item"><span class="meta-icon">👥</span> <strong>Purchases:</strong> ${d.accessCount}</div>
+                    </div>
+                    <div class="dataset-actions">
+                        <button class="btn btn-primary btn-small" style="flex: 1;" onclick="showPurchaseModal('${d.id}')">🛒 Purchase Access</button>
+                        <button class="btn btn-secondary btn-small" style="flex: 1;" onclick="showDatasetDetails('${d.id}')">ℹ️ View Details</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function renderMyDatasets() {
+            const myDatasets = datasets.filter(d => d.owner.toLowerCase() === currentUser.toLowerCase());
+            const container = document.getElementById('my-datasets-container');
+            
+            if (!myDatasets.length) {
+                container.innerHTML = `<div style="text-align: center; padding: 3rem; color: var(--text-muted); grid-column: 1 / -1;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🗂️</div>
+                    <h3>No datasets uploaded yet</h3>
+                    <p>Your uploaded datasets will appear here.</p>
+                    <button class="btn btn-primary" onclick="switchTab('upload')" style="margin-top: 1rem;">
+                        📤 Upload Dataset
+                    </button>
+                </div>`;
+                return;
+            }
+
+            container.innerHTML = myDatasets.map(d => `
+                <div class="dataset-card">
+                    <div class="dataset-header">
+                        <div>
+                            <h3 class="dataset-title">${d.title}</h3>
+                        </div>
+                        <div class="quality-score">⭐ ${d.qualityScore.toFixed(1)}</div>
+                    </div>
+                     <div class="dataset-meta">
+                        <div class="meta-item"><span class="meta-icon">💰</span> <strong>Price:</strong> ${d.price.toFixed(6)} ETH</div>
+                        <div class="meta-item"><span class="meta-icon">👥</span> <strong>Purchases:</strong> ${d.accessCount}</div>
+                        <div class="meta-item"><span class="meta-icon">📅</span> <strong>Uploaded:</strong> ${new Date(d.uploadDate).toLocaleDateString()}</div>
+                        <div class="meta-item"><span class="meta-icon">⭐</span> <strong>Rating:</strong> ${d.rating} / 5</div>
+                    </div>
+                     <div class="dataset-actions">
+                        <button class="btn btn-secondary btn-small" style="flex: 1;" onclick="showDatasetDetails('${d.id}')">📊 Manage & View Stats</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function searchDatasets() {
+            const query = document.getElementById('searchQuery').value.toLowerCase();
+            const minQuality = parseFloat(document.getElementById('qualityFilter').value);
+
+            const filtered = datasets.filter(d => {
+                const matchesQuery = d.title.toLowerCase().includes(query) ||
+                                     d.description.toLowerCase().includes(query) ||
+                                     d.tags.some(tag => tag.toLowerCase().includes(query));
+                const meetsQuality = d.qualityScore >= minQuality;
+                return matchesQuery && meetsQuality;
+            });
+
+            renderDatasets(filtered);
+        }
+
+        function showDatasetDetails(datasetId) {
+            const dataset = datasets.find(d => d.id === datasetId);
+            if (!dataset) return;
+
+            const content = `
+                <p style="color: var(--text-muted); margin-bottom: 1.5rem;">${dataset.description}</p>
+                <div class="tags">${dataset.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>
+                <h4 style="margin-top: 2rem;">Dataset Metrics</h4>
+                <div class="dataset-meta" style="margin-top: 1rem; grid-template-columns: 1fr;">
+                    <div class="meta-item"><strong>IPFS Hash:</strong> ${dataset.ipfsHash.substring(0, 20)}...</div>
+                    <div class="meta-item"><strong>Owner:</strong> ${dataset.owner}</div>
+                    <div class="meta-item"><strong>File Size:</strong> ${formatFileSize(dataset.fileSize)}</div>
+                    <div class="meta-item"><strong>Data Type:</strong> ${dataset.dataType}</div>
+                    <div class="meta-item"><strong>Quality Score:</strong> ${dataset.qualityScore.toFixed(2)} / 100</div>
+                    <div class="meta-item"><strong>Price:</strong> ${dataset.price.toFixed(6)} ETH</div>
+                    <div class="meta-item"><strong>Total Purchases:</strong> ${dataset.accessCount}</div>
+                    <div class="meta-item"><strong>Rating:</strong> ${dataset.rating} / 5 ⭐</div>
+                </div>
+                <h4 style="margin-top: 2rem;">Schema Information</h4>
+                <div class="dataset-meta" style="margin-top: 1rem;">
+                    <div class="meta-item"><strong>Rows:</strong> ${dataset.schema.rows.toLocaleString()}</div>
+                    <div class="meta-item"><strong>Columns:</strong> ${dataset.schema.columns}</div>
+                </div>
+                <ul style="list-style: none; margin-top: 1rem; padding-left: 1rem;">
+                    ${Object.entries(dataset.schema.columnDetails).map(([name, details]) => `
+                        <li><strong>${name}:</strong> <span style="color: var(--text-muted);">${details.type} (unique: ${details.unique.toLocaleString()})</span></li>
+                    `).join('')}
+                </ul>
+                <div class="dataset-actions" style="justify-content: flex-end; margin-top: 2rem;">
+                    <button class="btn btn-primary" onclick="showPurchaseModal('${dataset.id}')">🛒 Purchase Access</button>
+                </div>
+            `;
+
+            document.getElementById('modalContent').innerHTML = content;
+            document.querySelector('#datasetModal .modal-title').textContent = dataset.title;
+            openModal('datasetModal');
+        }
+
+        function showPurchaseModal(datasetId) {
+            const dataset = datasets.find(d => d.id === datasetId);
+            if (!dataset) return;
+
+            closeModal('datasetModal');
+
+            const content = `
+                <p>You are about to purchase access to the dataset:</p>
+                <h4 style="margin: 1rem 0;">${dataset.title}</h4>
+                <div class="dataset-meta">
+                    <div class="meta-item"><strong>Price:</strong> ${dataset.price.toFixed(6)} ETH</div>
+                    <div class="meta-item"><strong>Owner:</strong> ${dataset.owner.substring(0, 10)}...</div>
+                </div>
+                <p style="margin-top: 1rem; color: var(--text-muted);">This transaction will be recorded on the blockchain. Your wallet address is: <strong>${currentUser}</strong></p>
+                <div class="dataset-actions" style="justify-content: space-between; margin-top: 2rem;">
+                    <button class="btn btn-secondary" onclick="closeModal('purchaseModal')">Cancel</button>
+                    <button id="confirmPurchaseBtn" class="btn btn-primary" onclick="confirmPurchase('${dataset.id}')">Confirm Purchase</button>
+                </div>
+            `;
+
+            document.getElementById('purchaseContent').innerHTML = content;
+            openModal('purchaseModal');
+        }
+
+        function confirmPurchase(datasetId) {
+            const btn = document.getElementById('confirmPurchaseBtn');
+            btn.innerHTML = `<span class="loading"></span> Processing...`;
+            btn.disabled = true;
+
+            setTimeout(() => {
+                const dataset = datasets.find(d => d.id === datasetId);
+                if (dataset) {
+                    dataset.accessCount += 1;
+                    updateStats();
+                    searchDatasets();
+                }
+
+                closeModal('purchaseModal');
+                showNotification(`Successfully purchased access to "${dataset.title}"!`);
+            }, 2000); // Simulate blockchain transaction time
+        }
+        
+        // --- UPLOAD LOGIC ---
+        
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const file = document.getElementById('datasetFile').files[0];
+            const title = document.getElementById('datasetTitle').value;
+            const description = document.getElementById('datasetDescription').value;
+            const ownerAddress = document.getElementById('ownerAddress').value;
+
+            if (!file || !title || !description || !ownerAddress) {
+                showNotification('Please fill all fields', 'error');
+                return;
+            }
+            
+            if (!/^0x[a-fA-F0-9]{40}$/.test(ownerAddress)) {
+                showNotification('Invalid wallet address format', 'error');
+                return;
+            }
+
+            openModal('uploadModal');
+            simulateUploadProcess(file, title, description, ownerAddress);
+        });
+
+        function simulateUploadProcess(file, title, description, ownerAddress) {
+            const progressFill = document.getElementById('progressFill');
+            const progressTitle = document.getElementById('progressTitle');
+            const progressText = document.getElementById('progressText');
+            
+            const updateProgress = (newProgress, newTitle, newText) => {
+                progressFill.style.width = `${newProgress}%`;
+                progressTitle.textContent = newTitle;
+                progressText.textContent = newText;
+            };
+
+            updateProgress(0, 'Starting Upload...', 'Initializing process.');
+
+            setTimeout(() => {
+                updateProgress(25, 'Uploading to IPFS...', 'Pinning data to the decentralized network.');
+            }, 500);
+
+            setTimeout(() => {
+                updateProgress(50, '🤖 Running AI Analysis...', 'Assessing data quality, generating tags, and suggesting price.');
+            }, 2500);
+
+            setTimeout(() => {
+                updateProgress(75, '🎯 Minting Data NFT...', 'Creating a unique token to represent ownership on the blockchain.');
+            }, 4500);
+
+            setTimeout(() => {
+                updateProgress(100, '🎉 Finalizing...', 'Adding your dataset to the marketplace.');
+            }, 6000);
+            
+            setTimeout(() => {
+                const newDataset = {
+                    id: `ds${(datasets.length + 1).toString().padStart(3, '0')}`,
+                    title: title,
+                    description: description,
+                    owner: ownerAddress,
+                    ipfsHash: "Qm" + [...Array(44)].map(() => Math.floor(Math.random() * 16).toString(16)).join(''),
+                    fileSize: file.size,
+                    uploadDate: new Date(),
+                    tags: ['new-upload', 'user-data', file.type.split('/')[1] || 'data'],
+                    qualityScore: 75 + Math.random() * 20, // 75-95
+                    price: 0.001 + Math.random() * 0.01, // 0.001-0.011
+                    dataType: file.name.endsWith('.json') ? 'json' : 'tabular',
+                    accessCount: 0,
+                    rating: 0,
+                    schema: {
+                        rows: Math.floor(1000 + Math.random() * 10000),
+                        columns: Math.floor(3 + Math.random() * 10),
+                        columnDetails: { "column_1": {type: "unknown", unique: 1}, "column_2": {type: "unknown", unique: 1} }
+                    }
+                };
+
+                datasets.unshift(newDataset);
+                closeModal('uploadModal');
+                document.getElementById('uploadForm').reset();
+                showNotification('Dataset uploaded successfully!');
+                
+                updateStats();
+                switchTab('browse');
+                searchDatasets();
+            }, 6500);
+        }
+
+        // --- INITIALIZATION ---
+
+        document.addEventListener('DOMContentLoaded', () => {
+            datasets = JSON.parse(JSON.stringify(sampleDatasets));
+
+            updateStats();
+            renderDatasets(datasets);
+
+            document.getElementById('searchQuery').addEventListener('input', searchDatasets);
+            document.getElementById('qualityFilter').addEventListener('change', searchDatasets);
+
+            document.getElementById('ownerAddress').value = currentUser;
+        });
+
+    </script>
+</body>
+</html>
